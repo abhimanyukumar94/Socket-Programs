@@ -1,0 +1,18 @@
+The concept of "connections" apply to SOCK_STREAM/TCP type of sockets. Connection means a reliable "stream" of data such that there can be multiple such streams each having communication of its own. Think of this as a pipe which is not interfered by data from other pipes. Another important property of stream connections is that packets have an "order" or "sequence".
+
+Other sockets like UDP , ICMP , ARP dont have a concept of "connection". These are non-connection based communication. Which means you keep sending or receiving packets from anybody and everybody
+
+
+Servers do the following:
+1. Open a socket
+2. bind an IP address and port
+3. listen on the socket
+4. accept connections
+5. read incoming messages
+6. send data accordingly
+
+To handle every connection we need a separate handling code to run along with the main server accepting connections. One way to achieve this is using threads. The main server program accepts a connection and creates a new thread to handle communication for the connection, and then the server goes back to accept more connections.
+
+The client has to actually listen for server message and user input at the same time. To do this, we use the select function. The select function can monitor multiple sockets or file descriptors for some "interesting activity" which is this case is readable. When a message comes from the server on the connected socket, it is readable and when the user types a message and hits enter, the stdin stream is readable.
+
+So the select function has to monitor 2 streams. First is the socket that is connected to the remote webserver, and second is stdin or terminal input stream. The select function blocks till something happens. So after calling select, it will return only when either the server socket receives a message or the user enters a message. If nothing happens it keeps on waiting.
